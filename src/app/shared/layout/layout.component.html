@@ -18,8 +18,8 @@
     <mat-list>
       @for (link of links; track link) {
         <mat-list-item [routerLink]="link.routerLink">
-          <mat-icon matListItemIcon>{{link.icon}}</mat-icon>
-          <h3 matListItemTitle>{{link.label}}</h3>
+          <mat-icon matListItemIcon>{{ link.icon }}</mat-icon>
+          <h3 matListItemTitle>{{ link.label }}</h3>
         </mat-list-item>
       }
     </mat-list>

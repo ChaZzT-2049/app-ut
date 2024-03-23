@@ -1,6 +1,6 @@
 {
-  "name": "app-ut",
-  "short_name": "app-ut",
+  "name": "utrm-app",
+  "short_name": "utrm-app",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",

@@ -1,4 +1,4 @@
 export enum CategoryEnum {
-  drink = 'drink',
-  food = 'food',
+  drink= 'drink',
+  food= 'food',
 }
