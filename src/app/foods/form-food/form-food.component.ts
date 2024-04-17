@@ -1,32 +1,34 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
-  FormControl,
+  Validators,
+  FormsModule,
   ReactiveFormsModule,
-  Validators
 } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButton } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { Food, FoodService } from '../shared';
+import { MatButtonModule } from '@angular/material/button';
+import { Food } from '../shared/food.model';
+import { FoodService } from '../shared/food.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-form-food',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    MatIconModule,
-    MatInputModule,
     MatFormFieldModule,
-    MatButton,
+    MatInputModule,
+    FormsModule,
+    ReactiveFormsModule,
     MatSelectModule,
-    RouterModule
+    MatButtonModule,
+    RouterModule,
+    MatIcon,
   ],
   templateUrl: './form-food.component.html',
-  styleUrl: './form-food.component.scss'
+  styleUrl: './form-food.component.scss',
 })
 export class FormFoodComponent implements OnInit {
   form = this.formBuilder.group({
@@ -36,42 +38,51 @@ export class FormFoodComponent implements OnInit {
     category: ['', [Validators.required]],
     price: ['', [Validators.required, Validators.min(2)]],
   });
-  constructor(private formBuilder: FormBuilder, public serviceFood: FoodService, public router: Router) { }
 
-  fooId: number = -1;
+  constructor(
+    private formBuilder: FormBuilder,
+    public serviceFood: FoodService,
+    public router: Router
+  ) {}
+  route: ActivatedRoute = inject(ActivatedRoute);
+  foodId: number = -1;
   edit: boolean = false;
-  activedRoute: ActivatedRoute = inject(ActivatedRoute);
   food?: Food = {
     id: 0,
     name: '',
     description: '',
-    image: '',
     category: '',
-    price: 0
-  }
+    image: '',
+    price: 0,
+  };
 
   ngOnInit(): void {
-    if (this.activedRoute.snapshot.params['id']) {
+    if (this.route.snapshot.params['id']) {
       this.edit = true;
-      this.fooId = Number(this.activedRoute.snapshot.params['id']);
-      console.log(this.fooId);
-      this.food = this.serviceFood.getOne(this.fooId);
-      if (this.food) {
-        this.form.patchValue({
-          name: this.food.name,
-          description: this.food.description,
-          image: this.food.image,
-          category: this.food.category,
-          price: this.food.price.toString()
-        })
-      }
+      console.log('Esta se puede actualizar' + this.edit);
+      this.foodId = Number(this.route.snapshot.params['id']);
+      this.serviceFood.getOneFood(this.foodId).subscribe({
+        next: (value) => this.updateForm(value),
+        error: (e) => console.error(e),
+        complete: () => console.info('complete'),
+      });
     }
   }
 
+  public updateForm(food: Food): void {
+    if (food) {
+      this.form.patchValue({
+        name: food.name,
+        category: food.category,
+        description: food.description,
+        image: food.image,
+        price: food.price.toString(),
+      });
+    }
+  }
 
   public updateData() {
     if (this.form.status == 'VALID') {
-
       if (
         this.name?.value &&
         this.description?.value &&
@@ -79,25 +90,29 @@ export class FormFoodComponent implements OnInit {
         this.image?.value &&
         this.price?.value
       ) {
-        let priceNumber = Number(this.price.value)
+        let price = parseInt(this.price.value);
+
         let comida: Food = {
-          id: this.fooId,
-          name: this.name?.value,
-          description: this.description?.value,
+          id: this.foodId,
+          name: this.name.value,
+          description: this.description.value,
           category: this.category?.value,
           image: this.image?.value,
-          price: priceNumber
+          price: price,
         };
-        console.log(comida);
-        this.serviceFood.updateFood(comida);
-        //this.router.navigate(['/food/food-list']);
+        this.serviceFood.addFood(comida).subscribe({
+          next: (value) => (this.food = value),
+          error: (e) => console.error(e),
+          complete: () => this.router.navigate(['/food/food-list']),
+        });
       }
     }
   }
 
   public sendData() {
+    // Validando formulario
     if (this.form.status == 'VALID') {
-
+      // Validando cada dato
       if (
         this.name?.value &&
         this.description?.value &&
@@ -105,33 +120,44 @@ export class FormFoodComponent implements OnInit {
         this.image?.value &&
         this.price?.value
       ) {
-        let priceNumber = Number(this.price.value)
+        let price = parseInt(this.price.value);
+
+        //Creando el objeto
         let comida: Food = {
-          id: 0,
-          name: this.name?.value,
-          description: this.description?.value,
+          name: this.name.value,
+          description: this.description.value,
           category: this.category?.value,
           image: this.image?.value,
-          price: priceNumber
+          price: price,
         };
+
+        //Imprimiendo
         console.log(comida);
-        this.serviceFood.addFood(comida);
-        this.router.navigate(['/food/food-list']);
+        // this.serviceFood.addFood(comida);
+        this.serviceFood.addFood(comida).subscribe({
+          next: (value) => (this.food = value),
+          error: (error) => console.error(error),
+          complete: () => this.router.navigate(['/food/food-list']),
+        });
+
       }
     }
   }
 
-
   get name() {
     return this.form.get('name');
   }
+
   get description() {
     return this.form.get('description');
-  } get image() {
+  }
+  get image() {
     return this.form.get('image');
-  } get category() {
+  }
+  get category() {
     return this.form.get('category');
-  } get price() {
+  }
+  get price() {
     return this.form.get('price');
   }
 }

@@ -1,92 +1,147 @@
 import { Injectable } from '@angular/core';
 import { Food } from './food.model';
-import { CategoryEnum } from './category.enum';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FoodService {
+
+  API_URL:string= '';
+
 
   menu: Food[] = [
     {
       id: 1,
       name: 'pizza',
-      description: 'Pepperoni',
-      category: CategoryEnum.food,
-      image: 'https://2trendies.com/hero/2023/04/pizzapepperoni.jpg?width=1200&aspect_ratio=16:9',
-      price: 234,
+      description: 'Hawaiana',
+      category: 'food',
+      image:
+        'https://cdn2.cocinadelirante.com/sites/default/files/images/2019/11/como-hacer-pizza-hawaiana.jpg',
+      price: 250,
     },
     {
       id: 2,
       name: 'pizza',
-      description: 'Pepperoni',
-      category: CategoryEnum.food,
-      image: 'https://2trendies.com/hero/2023/04/pizzapepperoni.jpg?width=1200&aspect_ratio=16:9',
-      price: 234,
+      description: 'Peperoni',
+      category: 'food',
+      image:
+        'https://unareceta.com/wp-content/uploads/2016/08/receta-Pizza-pepperoni.jpg',
+      price: 250,
     },
     {
       id: 3,
-      name: 'pizza',
-      description: 'Pepperoni',
-      category: CategoryEnum.food,
-      image: 'https://2trendies.com/hero/2023/04/pizzapepperoni.jpg?width=1200&aspect_ratio=16:9',
-      price: 234,
+      name: 'spaghetti',
+      description: 'spaghetti rojo',
+      category: 'food',
+      image:
+        'https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/36C4D0A8-A26C-438B-9871-27ABEABB2E66/Derivates/A94C5717-A483-4ADF-B8AE-6D170994FEA1.jpg',
+      price: 250,
     },
     {
       id: 4,
-      name: 'pizza',
-      description: 'Pepperoni',
-      category: CategoryEnum.food,
-      image: 'https://2trendies.com/hero/2023/04/pizzapepperoni.jpg?width=1200&aspect_ratio=16:9',
-      price: 234,
+      name: 'Lasaña de pollo',
+      description: 'Lasaña de carne molida',
+      category: 'food',
+      image:
+        'https://www.recetasnestle.com.ec/sites/default/files/srh_recipes/6594a07290c4cc5ed88f682560cc2e49.jpg',
+      price: 150,
     },
     {
       id: 5,
-      name: 'pizza',
-      description: 'Pepperoni',
-      category: CategoryEnum.food,
-      image: 'https://2trendies.com/hero/2023/04/pizzapepperoni.jpg?width=1200&aspect_ratio=16:9',
-      price: 234,
+      name: 'Coca cola',
+      description: 'Refresco',
+      category: 'drink',
+      image:
+        'https://www.benavides.com.mx/media/catalog/product/cache/13134524bf2f7c32f6bea508eba7e730/5/3/531480_2.jpg',
+      price: 20,
     },
     {
       id: 6,
-      name: 'pizza',
-      description: 'Pepperoni',
-      category: CategoryEnum.food,
-      image: 'https://2trendies.com/hero/2023/04/pizzapepperoni.jpg?width=1200&aspect_ratio=16:9',
-      price: 234,
+      name: 'Pepsi',
+      description: 'Refresco',
+      category: 'drink',
+      image: 'https://m.media-amazon.com/images/I/51h232yC+zL.jpg',
+      price: 25,
+    },
+    {
+      id: 7,
+      name: 'café',
+      description: 'Café sin azucar',
+      category: 'drink',
+      image:
+        'https://s1.elespanol.com/2017/02/13/cocinillas/cocinillas_193495389_116293001_1706x960.jpg',
+      price: 30,
+    },
+    {
+      id: 8,
+      name: 'Fuzetea',
+      description: 'Té Negro Frutos Rojos 600 ml ',
+      category: 'drink',
+      image:
+        'https://store.loscorrales.com.mx/cdn/shop/products/FRUTOS1-01_1200x1200.jpg',
+      price: 250,
     },
   ];
 
-  constructor() {
+  constructor(private http:HttpClient) {
+    this.API_URL = `${environment.API_URL}`
   }
 
-  public getAllFood(): Food[] {
+  //funciona para obtener todas las comidas
+  public getAll():Observable<Food[]>{
+    return this.http.get<Food[]>(this.API_URL+'food/all');
+  }
+
+  //Funcion para agregar una comida
+  public addFood(food:Food):Observable<Food>{
+     return this.http.post<Food>(this.API_URL+'food/save',food);
+  }
+
+  public getOneFood(id:number):Observable<Food>{
+    return this.http.get<Food>(this.API_URL+'food/find/'+id);
+  }
+
+  public deleteFood(deleteFood:Food):Observable<unknown>{
+    return this.http.delete(this.API_URL + 'food/delete/'+deleteFood.id);
+  }
+
+  /*public getAllFoods(): Food[] {
     return this.menu;
+    //return this.http.get<Food[]>('');
   }
-  //Obtener comida del arreglo
-public getOne(id:number):Food | undefined {
-  return this.menu.find(item => item.id);
-}
 
-  //Añadir comida
-  public addFood(food: Food) {
+
+  //Regresa una comida
+  public getOne(id:number) :Food | undefined {
+    return this.menu.find(item =>item.id === id );
+  }*/
+
+  /*public addFood(food: Food) {
     this.menu.push(food);
+  }*/
+
+  /*public updateFood(newFood: Food) {
+    this.menu.forEach((item, index) => {
+      if (item.id == newFood.id) {
+        this.menu[index] = newFood;
+      }
+    });
   }
-  //Actualizar comida
-  public updateFood(newFood: Food) {
-    this.menu.forEach((food, index) => {
-      if (food.id == newFood.id) {
-        this.menu [index] = newFood
+
+  public deleteFood(deletefood: Food) {
+    console.log(this.menu.length);
+    
+    this.menu.forEach((food, index)=>{
+      if (food.id == deletefood.id) {
+        this.menu.splice(index,1);
+        console.log(this.menu.length);
+        
+
       }
     })
-  }
-  //Eliminar comida
-  public deleteFood(deleteFood: Food) {
-    this.menu.forEach((food, index) => {
-      if (food.id == deleteFood.id) {
-        this.menu.splice(index, 1);
-      }
-    })
-  }
+   
+  }*/
 }
